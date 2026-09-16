@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Portal | Sela Volts</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Sela Volts</h1>
+        <p>Customer portal</p>
+      </div>
+    </header>
+
+    <main class="container single-column">
+      <section class="panel">
+        <h2>Customer registration</h2>
+        <form id="customer-register-form">
+          <label>Full name <input type="text" id="customer_full_name" required /></label>
+          <label>Phone number <input type="tel" id="customer_phone" required /></label>
+          <label>Plate number <input type="text" id="customer_plate" required /></label>
+          <label>Vehicle type
+            <select id="customer_vehicle_type">
+              <option value="Car">Car</option>
+              <option value="SUV">SUV</option>
+              <option value="Truck">Truck</option>
+              <option value="Bus">Bus</option>
+            </select>
+          </label>
+          <button type="submit">Register vehicle</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+      document.getElementById('customer-register-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+          const payload = {
+            full_name: document.getElementById('customer_full_name').value,
+            phone_number: document.getElementById('customer_phone').value,
+            plate_number: document.getElementById('customer_plate').value,
+            vehicle_type: document.getElementById('customer_vehicle_type').value
+          };
+
+          const response = await fetch('/api/customers/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Registration failed');
+          alert('Registration successful.');
+          event.target.reset();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    </script>
+  </body>
+</html>

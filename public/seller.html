@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seller Portal | Sela Volts</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Sela Volts</h1>
+        <p>Seller portal</p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <h2>Seller: start charge</h2>
+        <form id="seller-session-form">
+          <label>Vehicle ID <input type="number" id="seller_vehicle_id" required /></label>
+          <label>Charger <input type="text" id="seller_charger" value="CHARGER-01" required /></label>
+          <label>Amount due (RWF) <input type="number" id="seller_amount" value="5000" min="0" step="100" required /></label>
+          <label>Seller name <input type="text" id="seller_name" value="Seller 1" required /></label>
+          <label class="checkbox-row"><input type="checkbox" id="seller_confirmed" /> Customer confirmed the amount</label>
+          <button type="submit">Start charging</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Payment request</h2>
+        <form id="seller-payment-form">
+          <label>Session ID <input type="number" id="seller_session_id" required /></label>
+          <label>Phone number <input type="tel" id="seller_phone" required /></label>
+          <label>Provider
+            <select id="seller_provider">
+              <option value="MTN MoMo">MTN MoMo</option>
+              <option value="Airtel Money">Airtel Money</option>
+            </select>
+          </label>
+          <button type="submit">Request payment</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Confirm payment</h2>
+        <form id="seller-confirm-form">
+          <label>Payment ID <input type="number" id="seller_payment_id" required /></label>
+          <label>Session ID <input type="number" id="seller_confirm_session_id" required /></label>
+          <button type="submit">Confirm payment</button>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      document.getElementById('seller-session-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const isConfirmed = document.getElementById('seller_confirmed').checked;
+        if (!isConfirmed) {
+          alert('Customer must confirm the amount before charging starts.');
+          return;
+        }
+
+        const payload = {
+          vehicle_id: Number(document.getElementById('seller_vehicle_id').value),
+          charger_id: document.getElementById('seller_charger').value,
+          amount_due: Number(document.getElementById('seller_amount').value || 0),
+          seller_name: document.getElementById('seller_name').value
+        };
+
+        try {
+          const response = await fetch('/api/sessions/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Session failed');
+          document.getElementById('seller_session_id').value = result.session.id;
+          document.getElementById('seller_confirm_session_id').value = result.session.id;
+          alert(`Session started. ID: ${result.session.id}`);
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      document.getElementById('seller-payment-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        try {
+          const payload = {
+            session_id: Number(document.getElementById('seller_session_id').value),
+            phone_number: document.getElementById('seller_phone').value,
+            provider: document.getElementById('seller_provider').value
+          };
+
+          const response = await fetch('/api/payments/initiate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Payment request failed');
+          document.getElementById('seller_payment_id').value = result.payment.id;
+          alert(result.instructions);
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      document.getElementById('seller-confirm-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        try {
+          const payload = {
+            payment_id: Number(document.getElementById('seller_payment_id').value),
+            session_id: Number(document.getElementById('seller_confirm_session_id').value)
+          };
+
+          const response = await fetch('/api/payments/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Confirmation failed');
+          alert('Payment confirmed successfully.');
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    </script>
+  </body>
+</html>

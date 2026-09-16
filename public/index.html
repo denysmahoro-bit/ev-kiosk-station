@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sela Volts</title>
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="description" content="Sela Volts EV charging registration and payment" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Sela Volts</h1>
+        <p>Smart EV charging registration and payment</p>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="brand-pill">Clean energy for Rwanda</span>
+        <h2>Powering electric mobility with confidence.</h2>
+        <p>
+          Sela Volts makes EV registration, station charging, and mobile money payment simple for
+          customers and staff.
+        </p>
+        <div class="hero-actions">
+          <a href="/dashboard" class="primary-btn">View dashboard</a>
+          <a href="/demo" class="secondary-btn">See demo guide</a>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <strong>24/7</strong>
+          <span>Station access</span>
+        </div>
+        <div>
+          <strong>RWF</strong>
+          <span>Mobile money</span>
+        </div>
+        <div>
+          <strong>EV</strong>
+          <span>Ready</span>
+        </div>
+      </div>
+    </section>
+
+    <main class="container">
+      <section class="panel" id="customer-panel" data-role="customer">
+        <h2>Customer registration</h2>
+        <form id="register-form">
+          <label>
+            Full name
+            <input type="text" id="full_name" placeholder="John Doe" required />
+          </label>
+
+          <label>
+            Phone number
+            <input type="tel" id="phone_number" placeholder="0788123456" required />
+          </label>
+
+          <label>
+            Plate number
+            <input type="text" id="plate_number" placeholder="RAA 123 A" required />
+          </label>
+
+          <label>
+            Vehicle type
+            <select id="vehicle_type">
+              <option value="Car">Car</option>
+              <option value="SUV">SUV</option>
+              <option value="Truck">Truck</option>
+              <option value="Bus">Bus</option>
+            </select>
+          </label>
+
+          <button type="submit">Register customer</button>
+        </form>
+      </section>
+
+      <section class="panel" id="seller-panel" data-role="seller">
+        <h2>Seller: start charge</h2>
+        <form id="session-form">
+          <label>
+            Vehicle
+            <select id="vehicle_id"></select>
+          </label>
+
+          <label>
+            Charger
+            <input type="text" id="charger_id" value="CHARGER-01" required />
+          </label>
+
+          <label>
+            Amount due (RWF)
+            <input type="number" id="amount_due" value="5000" min="0" step="100" required />
+          </label>
+
+          <label>
+            Seller name
+            <input type="text" id="seller_name" value="Seller 1" required />
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="customer_confirmed" />
+            Customer confirmed the amount
+          </label>
+
+          <button type="submit">Start charging</button>
+        </form>
+      </section>
+
+      <section class="panel" id="customer-payment-panel" data-role="customer">
+        <h2>Customer: pay after charge</h2>
+        <form id="payment-form">
+          <label>
+            Session ID
+            <input type="number" id="session_id" required />
+          </label>
+
+          <label>
+            Mobile money provider
+            <select id="provider">
+              <option value="MTN MoMo">MTN MoMo</option>
+              <option value="Airtel Money">Airtel Money</option>
+            </select>
+          </label>
+
+          <label>
+            Phone number
+            <input type="tel" id="payment_phone" placeholder="0788123456" required />
+          </label>
+
+          <button type="submit">Request payment</button>
+        </form>
+      </section>
+
+      <section class="panel" id="payment-confirm-panel" data-role="customer">
+        <h2>Confirm payment</h2>
+        <form id="confirm-form">
+          <label>
+            Payment ID
+            <input type="number" id="payment_id" required />
+          </label>
+
+          <label>
+            Session ID
+            <input type="number" id="confirm_session_id" required />
+          </label>
+
+          <button type="submit">Confirm payment</button>
+        </form>
+      </section>
+    </main>
+
+    <section class="dashboard panel" id="dashboard-panel" data-role="dashboard">
+      <h2>Station dashboard</h2>
+      <div id="dashboard-summary" class="summary-grid"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Plate</th>
+              <th>Seller</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <script src="app.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const targetView = params.get('view');
+
+      if (targetView) {
+        const target = document.querySelector(`[data-role="${targetView}"]`);
+        if (target) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 150);
+        }
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+    </script>
+  </body>
+</html>

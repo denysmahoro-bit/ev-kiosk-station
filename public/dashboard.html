@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Sela Volts</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Sela Volts</h1>
+        <p>Dashboard</p>
+      </div>
+    </header>
+
+    <section class="dashboard panel">
+      <h2>Station dashboard</h2>
+      <div id="dashboard-summary" class="summary-grid"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Plate</th>
+              <th>Seller</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      async function fetchJson(url) {
+        const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Request failed');
+        return data;
+      }
+
+      async function loadDashboard() {
+        const stats = await fetchJson('/api/dashboard');
+        document.getElementById('dashboard-summary').innerHTML = `
+          <div class="summary-card"><h3>Customers</h3><p>${stats.totalCustomers}</p></div>
+          <div class="summary-card"><h3>Vehicles</h3><p>${stats.totalVehicles}</p></div>
+          <div class="summary-card"><h3>Sessions</h3><p>${stats.totalSessions}</p></div>
+          <div class="summary-card"><h3>Revenue</h3><p>${stats.totalRevenue} RWF</p></div>
+        `;
+
+        document.getElementById('sessions-table').innerHTML = (stats.sessions || [])
+          .slice()
+          .reverse()
+          .map((session) => `
+            <tr>
+              <td>${session.plate_number}</td>
+              <td>${session.seller_name || 'Seller'}</td>
+              <td>${session.amount_due || session.amount || 0} RWF</td>
+              <td><span class="status-badge ${session.status}">${session.status}</span></td>
+            </tr>
+          `)
+          .join('');
+      }
+
+      loadDashboard().catch((error) => {
+        alert(error.message);
+      });
+    </script>
+  </body>
+</html>

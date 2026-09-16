@@ -1,0 +1,14 @@
+{
+  "name": "ev-kiosk-station",
+  "version": "1.0.0",
+  "description": "Self-service EV charging kiosk with seller flow, customer registration, and mobile money payment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "mongodb": "^7.6.0"
+  }
+}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Guide | Sela Volts</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+      }
+      .demo-wrap {
+        max-width: 1000px;
+        margin: 32px auto 48px;
+        padding: 0 20px;
+      }
+      .demo-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+      .demo-card h2 {
+        margin-top: 0;
+      }
+      .demo-card p,
+      .demo-card li {
+        color: #374151;
+        line-height: 1.7;
+      }
+      .sample-box {
+        background: #f0fdf4;
+        border-left: 4px solid #22c55e;
+        padding: 16px;
+        border-radius: 10px;
+        margin-top: 12px;
+      }
+      .sample-box strong {
+        color: #14532d;
+      }
+      .steps {
+        padding-left: 20px;
+      }
+      .link-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+      }
+      .link-row a {
+        text-decoration: none;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Sela Volts</h1>
+        <p>Simple demo guide</p>
+      </div>
+    </header>
+
+    <div class="demo-wrap">
+      <div class="demo-card">
+        <h2>How to use the app</h2>
+        <p>
+          This example shows how a customer, seller, and dashboard user can fill in the Sela Volts system.
+        </p>
+        <div class="link-row">
+          <a href="/customer">Go to Customer portal</a>
+          <a href="/seller">Go to Seller portal</a>
+          <a href="/dashboard">Go to Dashboard</a>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <h2>1. Customer example</h2>
+        <ol class="steps">
+          <li>Open the Customer portal.</li>
+          <li>Fill in the form:</li>
+        </ol>
+        <div class="sample-box">
+          <strong>Example values:</strong><br />
+          Full name: Jane Uwase<br />
+          Phone number: 0788123456<br />
+          Plate number: RAA 123 A<br />
+          Vehicle type: Car
+        </div>
+        <p>Then click “Register vehicle”.</p>
+      </div>
+
+      <div class="demo-card">
+        <h2>2. Seller example</h2>
+        <ol class="steps">
+          <li>Open the Seller portal.</li>
+          <li>Fill in:</li>
+        </ol>
+        <div class="sample-box">
+          <strong>Example values:</strong><br />
+          Vehicle ID: 1713456789000<br />
+          Charger: CHARGER-01<br />
+          Amount due: 5000<br />
+          Seller name: Seller 1<br />
+          Phone number: 0788123456<br />
+          Provider: MTN MoMo
+        </div>
+        <p>Check the confirmation box, click “Start charging”, then request and confirm payment.</p>
+      </div>
+
+      <div class="demo-card">
+        <h2>3. Dashboard example</h2>
+        <p>Open the Dashboard to view:</p>
+        <div class="sample-box">
+          <strong>Example data:</strong><br />
+          Customers: 12<br />
+          Vehicles: 12<br />
+          Sessions: 18<br />
+          Revenue: 150000 RWF
+        </div>
+        <p>The table should show recent charging sessions and payment status.</p>
+      </div>
+
+      <div class="demo-card">
+        <h2>Full sample scenario</h2>
+        <ol class="steps">
+          <li>A customer registers plate number RAA 123 A.</li>
+          <li>A seller starts a charge session.</li>
+          <li>The seller requests payment by mobile money.</li>
+          <li>The payment is confirmed.</li>
+          <li>The dashboard updates with the new revenue and session record.</li>
+        </ol>
+      </div>
+    </div>
+  </body>
+</html>

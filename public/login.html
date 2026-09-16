@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in | Sela Volts</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container single-column">
+      <section class="panel auth-panel">
+        <div class="auth-header">
+          <div>
+            <span class="brand-pill">Sela Volts</span>
+            <h1>Welcome back</h1>
+          </div>
+          <p>Choose your access path and continue securely.</p>
+        </div>
+
+        <div id="role-picker" class="auth-role-select-wrap">
+          <div class="step-row">
+            <span class="step-badge active">1</span>
+            <h2>Who are you?</h2>
+          </div>
+          <div class="auth-role-select">
+            <button type="button" class="secondary-btn role-link" data-role="customer">Customer</button>
+            <button type="button" class="secondary-btn role-link" data-role="seller">Seller</button>
+            <button type="button" class="secondary-btn role-link" data-role="dashboard">Dashboard</button>
+          </div>
+        </div>
+
+        <form id="login-form" hidden>
+          <div class="step-row">
+            <span class="step-badge active">2</span>
+            <h2 id="login-role-title">Sign in</h2>
+          </div>
+          <label>Email <input type="email" id="login-email" required /></label>
+          <label>Password <input type="password" id="login-password" required /></label>
+          <div class="form-actions stacked">
+            <button type="button" class="secondary-btn" id="show-register">Create account</button>
+            <button type="submit">Sign in</button>
+          </div>
+          <button type="button" class="secondary-btn subtle" id="back-to-role">Back</button>
+        </form>
+
+        <form id="register-form" hidden>
+          <div class="step-row">
+            <span class="step-badge active">3</span>
+            <h2>Create account</h2>
+          </div>
+          <label>Email <input type="email" id="register-email" required /></label>
+          <label>Phone number <input type="tel" id="register-phone" placeholder="0788123456" required /></label>
+          <label>Password <input type="password" id="register-password" minlength="8" required /></label>
+          <label>Confirm password <input type="password" id="register-confirm-password" minlength="8" required /></label>
+          <button type="submit">Create account</button>
+          <button type="button" class="secondary-btn subtle" id="back-to-login">Back</button>
+        </form>
+
+        <p id="auth-message" role="alert"></p>
+      </section>
+    </main>
+    <script>
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const rolePicker = document.getElementById('role-picker');
+      const loginRoleTitle = document.getElementById('login-role-title');
+      const message = document.getElementById('auth-message');
+      const roleButtons = document.querySelectorAll('.role-link');
+      let selectedRole = 'customer';
+
+      function updateRoleSelection() {
+        roleButtons.forEach((button) => {
+          button.classList.toggle('active', button.dataset.role === selectedRole);
+        });
+      }
+
+      function showRolePicker() {
+        rolePicker.hidden = false;
+        loginForm.hidden = true;
+        registerForm.hidden = true;
+        selectedRole = 'customer';
+        updateRoleSelection();
+        message.textContent = '';
+      }
+
+      function openRole(role) {
+        selectedRole = role;
+        rolePicker.hidden = true;
+        loginForm.hidden = false;
+        registerForm.hidden = true;
+        loginRoleTitle.textContent = `Sign in as ${role.charAt(0).toUpperCase() + role.slice(1)}`;
+        updateRoleSelection();
+        message.textContent = '';
+      }
+
+      function openRegister() {
+        loginForm.hidden = true;
+        registerForm.hidden = false;
+        message.textContent = '';
+      }
+
+      function showLoginFromRole() {
+        loginForm.hidden = false;
+        registerForm.hidden = true;
+        message.textContent = '';
+      }
+
+      document.getElementById('back-to-role').addEventListener('click', showRolePicker);
+      document.getElementById('back-to-login').addEventListener('click', showLoginFromRole);
+
+      document.getElementById('show-register').addEventListener('click', openRegister);
+
+      roleButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          openRole(button.dataset.role);
+        });
+      });
+
+      async function submitAuth(url, payload) {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Request failed');
+        return data;
+      }
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+          await submitAuth('/api/auth/login', {
+            email: document.getElementById('login-email').value,
+            password: document.getElementById('login-password').value,
+            role: selectedRole || 'customer'
+          });
+          window.location.href = `/?view=${selectedRole || 'customer'}`;
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      });
+
+      registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+          const email = document.getElementById('register-email').value.trim();
+          const phone = document.getElementById('register-phone').value.trim();
+          const password = document.getElementById('register-password').value;
+          const confirmPassword = document.getElementById('register-confirm-password').value;
+
+          if (!/^\+?[0-9\s-]{7,15}$/.test(phone)) {
+            throw new Error('Enter a valid phone number.');
+          }
+
+          if (password !== confirmPassword) {
+            throw new Error('Passwords do not match.');
+          }
+
+          const data = await submitAuth('/api/auth/register', {
+            email,
+            phone_number: phone,
+            password,
+            confirm_password: confirmPassword
+          });
+
+          message.textContent = `${data.message} Signing you in...`;
+          await submitAuth('/api/auth/login', {
+            email,
+            password,
+            role: selectedRole || 'customer'
+          });
+
+          registerForm.reset();
+          window.location.href = `/?view=${selectedRole || 'customer'}`;
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

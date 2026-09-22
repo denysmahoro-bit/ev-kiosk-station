@@ -6,7 +6,7 @@
     <title>Customer Portal | Sela Volts</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body class="portal-page">
     <header class="topbar">
       <div>
         <h1>Sela Volts</h1>
@@ -30,12 +30,18 @@
               <option value="Bus">Bus</option>
             </select>
           </label>
+          <label>Charging connector
+            <select id="customer_charging_type" required>
+              <option value="">Select charging connector</option>
+              <option value="CCS2 DC Fast Charging">CCS2 DC Fast Charging</option>
+              <option value="GB/T DC Fast Charging">GB/T DC Fast Charging</option>
+            </select>
+          </label>
           <button type="submit">Register vehicle</button>
         </form>
       </section>
     </main>
 
-    <script src="app.js"></script>
     <script>
       document.getElementById('customer-register-form').addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -44,7 +50,8 @@
             full_name: document.getElementById('customer_full_name').value,
             phone_number: document.getElementById('customer_phone').value,
             plate_number: document.getElementById('customer_plate').value,
-            vehicle_type: document.getElementById('customer_vehicle_type').value
+            vehicle_type: document.getElementById('customer_vehicle_type').value,
+            charging_type: document.getElementById('customer_charging_type').value
           };
 
           const response = await fetch('/api/customers/register', {

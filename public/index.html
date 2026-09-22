@@ -139,7 +139,7 @@
           <div class="station-details">
             <span><strong>Hours</strong>24/7 access</span>
             <span><strong>Vehicle types</strong>Electric vehicles</span>
-            <span><strong>Availability</strong>Contact us before visiting</span>
+            <span><strong>Availability</strong>Service available</span>
           </div>
         </div>
       </section>
@@ -151,8 +151,8 @@
           <p>Customers and sellers have separate spaces built for what they need.</p>
         </div>
         <div class="hero-actions">
-          <a class="primary-btn" href="/customer">Customer portal</a>
-          <a class="secondary-btn" href="/seller">Seller portal</a>
+          <a class="primary-btn portal-launch" href="/customer" data-portal="/customer" data-title="Customer portal">Customer portal</a>
+          <a class="secondary-btn portal-launch" href="/seller" data-portal="/seller" data-title="Seller portal">Seller portal</a>
         </div>
       </section>
 
@@ -199,10 +199,43 @@
 
     <footer class="site-footer">
       <span>© 2026 Sela Volts. Smart EV charging for everyone.</span>
-      <a href="/dashboard">Staff dashboard</a>
+      <a class="portal-launch" href="/dashboard" data-portal="/dashboard" data-title="Staff dashboard">Staff dashboard</a>
     </footer>
 
+    <div class="portal-modal" id="portal-modal" hidden>
+      <div class="portal-modal-backdrop" data-close-portal></div>
+      <section class="portal-modal-card" role="dialog" aria-modal="true" aria-labelledby="portal-modal-title">
+        <header class="portal-modal-header">
+          <h2 id="portal-modal-title">Portal</h2>
+          <button class="portal-modal-close" type="button" aria-label="Close portal" data-close-portal>×</button>
+        </header>
+        <iframe id="portal-frame" title="Sela Volts portal"></iframe>
+      </section>
+    </div>
+
     <script>
+      const portalModal = document.getElementById('portal-modal');
+      const portalFrame = document.getElementById('portal-frame');
+      const portalModalTitle = document.getElementById('portal-modal-title');
+
+      document.querySelectorAll('.portal-launch').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          portalModalTitle.textContent = link.dataset.title;
+          portalFrame.src = link.dataset.portal;
+          portalModal.hidden = false;
+          document.body.classList.add('portal-modal-open');
+        });
+      });
+
+      document.querySelectorAll('[data-close-portal]').forEach((element) => {
+        element.addEventListener('click', () => {
+          portalModal.hidden = true;
+          portalFrame.src = 'about:blank';
+          document.body.classList.remove('portal-modal-open');
+        });
+      });
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
       }

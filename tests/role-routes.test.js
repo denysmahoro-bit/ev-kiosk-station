@@ -15,8 +15,10 @@ async function waitForServer(port, timeoutMs = 15000) {
   throw new Error(`Server on port ${port} did not start in time.`);
 }
 
-async function assertRoute(port, route, expectedText) {
-  const response = await fetch(`http://localhost:${port}${route}`);
+async function assertRoute(port, route, expectedText, cookie) {
+  const response = await fetch(`http://localhost:${port}${route}`, {
+    headers: cookie ? { Cookie: cookie } : {}
+  });
   const html = await response.text();
   if (!response.ok) {
     throw new Error(`${route} responded with ${response.status}.`);
@@ -43,7 +45,13 @@ async function assertLandingPage(port) {
 (async () => {
   const server = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], {
     cwd: path.join(__dirname, '..'),
-    env: { ...process.env, PORT: '3100' },
+    env: {
+      ...process.env,
+      PORT: '3100',
+      ADMIN_USERNAME: 'test-admin',
+      ADMIN_PASSWORD: 'test-password',
+      AUTH_SECRET: 'test-secret-for-routes'
+    },
     stdio: ['ignore', 'pipe', 'pipe']
   });
 
@@ -54,10 +62,39 @@ async function assertLandingPage(port) {
   try {
     await waitForServer(3100);
     await assertLandingPage(3100);
+    const loginResponse = await fetch('http://localhost:3100/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'test-admin', password: 'test-password' })
+    });
+    const cookie = loginResponse.headers.get('set-cookie').split(';')[0];
     await assertRoute(3100, '/customer', 'Customer portal');
-    await assertRoute(3100, '/seller', 'Seller portal');
-    await assertRoute(3100, '/dashboard', 'Dashboard');
-    console.log('PASS: customer/seller/dashboard routes exist.');
+    await assertRoute(3100, '/dashboard', 'Dashboard', cookie);
+    const deniedSeller = await fetch('http://localhost:3100/seller', { headers: { Cookie: cookie } });
+    if (deniedSeller.status !== 403) throw new Error('Dashboard owner should not use seller access.');
+    const sellerUsername = `test-seller-${Date.now()}`;
+    const workerResponse = await fetch('http://localhost:3100/api/workers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: cookie },
+      body: JSON.stringify({ name: 'Test Seller', username: sellerUsername, password: 'seller-password' })
+    });
+    const worker = await workerResponse.json();
+    const approval = await fetch(`http://localhost:3100/api/workers/${worker.worker.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Cookie: cookie },
+      body: JSON.stringify({ approved: true })
+    });
+    if (!approval.ok) throw new Error('Worker approval failed.');
+    const sellerLogin = await fetch('http://localhost:3100/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: sellerUsername, password: 'seller-password' })
+    });
+    const sellerCookie = sellerLogin.headers.get('set-cookie').split(';')[0];
+    await assertRoute(3100, '/seller', 'Seller portal', sellerCookie);
+    const deniedDashboard = await fetch('http://localhost:3100/dashboard', { headers: { Cookie: sellerCookie } });
+    if (deniedDashboard.status !== 403) throw new Error('Seller should not use dashboard access.');
+    console.log('PASS: role-separated customer/seller/dashboard routes exist.');
   } catch (error) {
     console.error('FAIL:', error.message);
     console.error(logs.join(''));

@@ -6,7 +6,7 @@
     <title>Seller Portal | Sela Volts</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body class="portal-page">
     <header class="topbar">
       <div>
         <h1>Sela Volts</h1>
@@ -22,10 +22,19 @@
           <label>Vehicle ID <input type="number" id="seller_vehicle_id" required /></label>
           <label>Charger <input type="text" id="seller_charger" value="CHARGER-01" required /></label>
           <label>Amount due (RWF) <input type="number" id="seller_amount" value="5000" min="0" step="100" required /></label>
-          <label>Seller name <input type="text" id="seller_name" value="Seller 1" required /></label>
           <label class="checkbox-row"><input type="checkbox" id="seller_confirmed" /> Customer confirmed the amount</label>
           <button type="submit">Start charging</button>
         </form>
+      </section>
+
+      <section class="panel">
+        <h2>Account security</h2>
+        <form id="password-form">
+          <label>Current password <input type="password" id="current-password" required /></label>
+          <label>New password <input type="password" id="new-password" minlength="8" required /></label>
+          <button type="submit">Change password</button>
+        </form>
+        <p id="password-message" class="auth-message" role="alert"></p>
       </section>
 
       <section class="panel">
@@ -66,7 +75,6 @@
           vehicle_id: Number(document.getElementById('seller_vehicle_id').value),
           charger_id: document.getElementById('seller_charger').value,
           amount_due: Number(document.getElementById('seller_amount').value || 0),
-          seller_name: document.getElementById('seller_name').value
         };
 
         try {
@@ -75,6 +83,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
+
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || 'Session failed');
           document.getElementById('seller_session_id').value = result.session.id;
@@ -82,6 +91,27 @@
           alert(`Session started. ID: ${result.session.id}`);
         } catch (error) {
           alert(error.message);
+        }
+      });
+
+      document.getElementById('password-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const message = document.getElementById('password-message');
+        try {
+          const response = await fetch('/api/auth/password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              currentPassword: document.getElementById('current-password').value,
+              newPassword: document.getElementById('new-password').value
+            })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Password change failed.');
+          message.textContent = result.message;
+          event.target.reset();
+        } catch (error) {
+          message.textContent = error.message;
         }
       });
 
@@ -123,6 +153,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
+
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || 'Confirmation failed');
           alert('Payment confirmed successfully.');

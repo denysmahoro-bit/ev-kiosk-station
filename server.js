@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
@@ -9,12 +10,90 @@ const PORT = process.env.PORT || 3002;
 const DATA_FILE = path.join(__dirname, 'data', 'storage.json');
 const MONGO_URI = process.env.MONGODB_URI;
 const MONGO_DB = process.env.MONGODB_DB || 'sela_volts';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const AUTH_SECRET = process.env.AUTH_SECRET;
+const AUTH_COOKIE = 'sela_volts_auth';
+const TOKEN_TTL = 8 * 60 * 60 * 1000;
 
 let mongoClient;
 let mongoDb;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+function authIsConfigured() {
+  return Boolean(ADMIN_USERNAME && ADMIN_PASSWORD && AUTH_SECRET);
+}
+
+function createAuthToken() {
+  return createToken({ username: ADMIN_USERNAME, role: 'dashboard', name: 'Dashboard owner' });
+}
+
+function createToken(user) {
+  const payload = Buffer.from(JSON.stringify({ ...user, issuedAt: Date.now() })).toString('base64url');
+  const signature = crypto.createHmac('sha256', AUTH_SECRET).update(payload).digest('hex');
+  return `${payload}.${signature}`;
+}
+
+function getAuthUser(req) {
+  if (!authIsConfigured()) return false;
+
+  const token = req.headers.cookie
+    ?.split(';')
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${AUTH_COOKIE}=`))
+    ?.slice(`${AUTH_COOKIE}=`.length);
+
+  if (!token) return false;
+  const [payload, signature] = token.split('.');
+  if (
+    !payload ||
+    !signature ||
+    signature.length !== 64
+  ) return false;
+
+  const expected = crypto.createHmac('sha256', AUTH_SECRET).update(payload).digest('hex');
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return false;
+  try {
+    const user = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    return user.issuedAt && Date.now() - user.issuedAt <= TOKEN_TTL ? user : false;
+  } catch {
+    return false;
+  }
+}
+
+function requireAuth(req, res, next) {
+  const user = getAuthUser(req);
+  if (user) {
+    req.user = user;
+    return next();
+  }
+
+  if (req.path === '/seller' || req.path === '/dashboard') {
+    return res.redirect(`/login?next=${encodeURIComponent(req.path)}`);
+  }
+
+  return res.status(401).json({ error: 'Authentication required.' });
+}
+
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) return res.status(403).json({ error: 'This account is not authorized.' });
+    next();
+  };
+}
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  return { salt, hash: crypto.scryptSync(String(password), salt, 64).toString('hex') };
+}
+
+function passwordMatches(password, user) {
+  if (!user.password_hash || !user.password_salt) return false;
+  const actual = crypto.scryptSync(String(password), user.password_salt, 64);
+  const expected = Buffer.from(user.password_hash, 'hex');
+  return expected.length === actual.length && crypto.timingSafeEqual(actual, expected);
+}
 
 function ensureStorageFile() {
   const dir = path.dirname(DATA_FILE);
@@ -26,7 +105,8 @@ function ensureStorageFile() {
     customers: [],
     vehicles: [],
     sessions: [],
-    payments: []
+    payments: [],
+    workers: []
   };
 
   if (!fs.existsSync(DATA_FILE)) {
@@ -38,7 +118,7 @@ function ensureStorageFile() {
     const raw = fs.readFileSync(DATA_FILE, 'utf8');
     const data = JSON.parse(raw);
     if (!data.customers || !data.vehicles || !data.sessions || !data.payments) {
-      fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 2));
+      fs.writeFileSync(DATA_FILE, JSON.stringify({ ...defaultData, ...data }, null, 2));
     }
   } catch (error) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 2));
@@ -47,7 +127,9 @@ function ensureStorageFile() {
 
 function readStorage() {
   ensureStorageFile();
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  data.workers = data.workers || [];
+  return data;
 }
 
 function writeStorage(data) {
@@ -74,7 +156,7 @@ async function connectMongo() {
 async function ensureMongoCollections(db) {
   if (!db) return;
 
-  const collectionNames = ['customers', 'vehicles', 'sessions', 'payments'];
+  const collectionNames = ['customers', 'vehicles', 'sessions', 'payments', 'workers'];
   const existing = await db.listCollections({ name: { $in: collectionNames } }).toArray();
   const existingNames = new Set(existing.map((item) => item.name));
 
@@ -93,14 +175,15 @@ async function getDataStore() {
 
   await ensureMongoCollections(db);
 
-  const [customers, vehicles, sessions, payments] = await Promise.all([
+  const [customers, vehicles, sessions, payments, workers] = await Promise.all([
     db.collection('customers').find({}).toArray(),
     db.collection('vehicles').find({}).toArray(),
     db.collection('sessions').find({}).toArray(),
-    db.collection('payments').find({}).toArray()
+    db.collection('payments').find({}).toArray(),
+    db.collection('workers').find({}).toArray()
   ]);
 
-  return { customers, vehicles, sessions, payments };
+  return { customers, vehicles, sessions, payments, workers };
 }
 
 async function saveDataStore(data) {
@@ -112,7 +195,7 @@ async function saveDataStore(data) {
 
   await ensureMongoCollections(db);
 
-  for (const collectionName of ['customers', 'vehicles', 'sessions', 'payments']) {
+  for (const collectionName of ['customers', 'vehicles', 'sessions', 'payments', 'workers']) {
     const collection = db.collection(collectionName);
     await collection.deleteMany({});
     const items = data[collectionName] || [];
@@ -134,6 +217,102 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Sela Volts EV kiosk station is running' });
 });
 
+app.post('/api/auth/login', async (req, res) => {
+  if (!authIsConfigured()) {
+    return res.status(503).json({ error: 'Authentication is not configured on the server.' });
+  }
+
+  const { username, password } = req.body;
+  let user = null;
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    user = { username: ADMIN_USERNAME, role: 'dashboard', name: 'Dashboard owner' };
+  } else {
+    const data = await getDataStore();
+    const worker = (data.workers || []).find((item) => item.username.toLowerCase() === String(username || '').trim().toLowerCase());
+    if (worker && worker.approved && passwordMatches(password, worker)) {
+      user = { username: worker.username, role: 'seller', name: worker.name, workerId: worker.id };
+    }
+  }
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid username or password.' });
+  }
+
+  const secure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+  res.setHeader(
+    'Set-Cookie',
+    `${AUTH_COOKIE}=${createToken(user)}; HttpOnly;${secure ? ' Secure;' : ''} SameSite=Lax; Max-Age=28800; Path=/`
+  );
+  res.json({ message: 'Signed in successfully.', user });
+});
+
+app.get('/api/auth/me', requireAuth, (req, res) => res.json({ user: req.user }));
+
+app.post('/api/auth/password', requireAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!newPassword || String(newPassword).length < 8) return res.status(400).json({ error: 'New password must be at least 8 characters.' });
+  if (req.user.role !== 'seller') return res.status(403).json({ error: 'Only sellers can change their password here.' });
+  const data = await getDataStore();
+  const worker = data.workers.find((item) => item.id === req.user.workerId);
+  if (!worker || !passwordMatches(currentPassword, worker)) return res.status(401).json({ error: 'Current password is incorrect.' });
+  const credentials = hashPassword(newPassword);
+  worker.password_hash = credentials.hash;
+  worker.password_salt = credentials.salt;
+  await saveDataStore(data);
+  res.json({ message: 'Password changed successfully.' });
+});
+
+app.get('/api/workers', requireAuth, requireRole('dashboard'), async (req, res) => {
+  const data = await getDataStore();
+  res.json((data.workers || []).map(({ password_hash, password_salt, ...worker }) => worker));
+});
+
+app.post('/api/workers', requireAuth, requireRole('dashboard'), async (req, res) => {
+  const { name, username, password } = req.body;
+  if (!name || !username || !password || String(password).length < 8) return res.status(400).json({ error: 'Name, username, and a password of at least 8 characters are required.' });
+  const data = await getDataStore();
+  if (data.workers.some((item) => item.username.toLowerCase() === String(username).trim().toLowerCase())) return res.status(409).json({ error: 'Username already exists.' });
+  const credentials = hashPassword(password);
+  const worker = { id: Date.now(), name: String(name).trim(), username: String(username).trim(), approved: false, created_at: new Date().toISOString(), password_hash: credentials.hash, password_salt: credentials.salt };
+  data.workers.push(worker);
+  await saveDataStore(data);
+  const { password_hash, password_salt, ...safeWorker } = worker;
+  res.status(201).json({ worker: safeWorker });
+});
+
+app.patch('/api/workers/:id', requireAuth, requireRole('dashboard'), async (req, res) => {
+  const data = await getDataStore();
+  const worker = data.workers.find((item) => String(item.id) === String(req.params.id));
+  if (!worker) return res.status(404).json({ error: 'Worker not found.' });
+  if (typeof req.body.approved === 'boolean') worker.approved = req.body.approved;
+  if (req.body.password) {
+    if (String(req.body.password).length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    const credentials = hashPassword(req.body.password);
+    worker.password_hash = credentials.hash;
+    worker.password_salt = credentials.salt;
+  }
+  await saveDataStore(data);
+  const { password_hash, password_salt, ...safeWorker } = worker;
+  res.json({ worker: safeWorker });
+});
+
+app.delete('/api/workers/:id', requireAuth, requireRole('dashboard'), async (req, res) => {
+  const data = await getDataStore();
+  const before = data.workers.length;
+  data.workers = data.workers.filter((item) => String(item.id) !== String(req.params.id));
+  if (data.workers.length === before) return res.status(404).json({ error: 'Worker not found.' });
+  await saveDataStore(data);
+  res.json({ message: 'Worker deleted.' });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  const secure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+  res.setHeader(
+    'Set-Cookie',
+    `${AUTH_COOKIE}=; HttpOnly;${secure ? ' Secure;' : ''} SameSite=Lax; Max-Age=0; Path=/`
+  );
+  res.json({ message: 'Signed out successfully.' });
+});
+
 app.get('/api/customers', async (req, res) => {
   const data = await getDataStore();
   res.json(data.customers);
@@ -145,11 +324,13 @@ app.get('/api/vehicles', async (req, res) => {
 });
 
 app.post('/api/customers/register', async (req, res) => {
-  const { full_name, phone_number, plate_number, vehicle_type } = req.body;
+  const { full_name, phone_number, plate_number, vehicle_type, charging_type } = req.body;
   const plate = normalizePlate(plate_number);
 
-  if (!full_name || !phone_number || !plate) {
-    return res.status(400).json({ error: 'Full name, phone number, and plate number are required.' });
+  if (!full_name || !phone_number || !plate || !charging_type) {
+    return res.status(400).json({
+      error: 'Full name, phone number, plate number, and charging connector are required.'
+    });
   }
 
   const data = await getDataStore();
@@ -173,6 +354,7 @@ app.post('/api/customers/register', async (req, res) => {
     phone_number,
     plate_number: plate,
     vehicle_type: vehicle_type || 'Car',
+    charging_type,
     created_at: new Date().toISOString()
   };
 
@@ -187,8 +369,8 @@ app.post('/api/customers/register', async (req, res) => {
   });
 });
 
-app.post('/api/sessions/start', async (req, res) => {
-  const { vehicle_id, charger_id, amount_due, seller_name } = req.body;
+app.post('/api/sessions/start', requireAuth, requireRole('seller'), async (req, res) => {
+  const { vehicle_id, charger_id, amount_due } = req.body;
 
   if (!vehicle_id || !charger_id) {
     return res.status(400).json({ error: 'Vehicle and charger are required.' });
@@ -205,9 +387,10 @@ app.post('/api/sessions/start', async (req, res) => {
     id: Date.now(),
     vehicle_id: Number(vehicle_id),
     plate_number: vehicle.plate_number,
+    vehicle_type: vehicle.vehicle_type,
     charger_id,
     amount_due: Number(amount_due || 0),
-    seller_name: seller_name || 'Seller',
+    seller_name: req.user.name,
     status: 'charging',
     payment_status: 'pending',
     started_at: new Date().toISOString()
@@ -222,7 +405,7 @@ app.post('/api/sessions/start', async (req, res) => {
   });
 });
 
-app.post('/api/payments/initiate', async (req, res) => {
+app.post('/api/payments/initiate', requireAuth, requireRole('seller'), async (req, res) => {
   const { session_id, phone_number, provider } = req.body;
 
   if (!session_id || !phone_number || !provider) {
@@ -258,7 +441,7 @@ app.post('/api/payments/initiate', async (req, res) => {
   });
 });
 
-app.post('/api/payments/confirm', async (req, res) => {
+app.post('/api/payments/confirm', requireAuth, requireRole('seller'), async (req, res) => {
   const { payment_id, session_id } = req.body;
 
   const data = await getDataStore();
@@ -283,7 +466,7 @@ app.post('/api/payments/confirm', async (req, res) => {
   });
 });
 
-app.get('/api/dashboard', async (req, res) => {
+app.get('/api/dashboard', requireAuth, requireRole('dashboard'), async (req, res) => {
   const data = await getDataStore();
   const totalRevenue = data.payments
     .filter((payment) => payment.status === 'paid')
@@ -307,11 +490,15 @@ app.get('/customer', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'customer.html'));
 });
 
-app.get('/seller', (req, res) => {
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/seller', requireAuth, requireRole('seller'), (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'seller.html'));
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', requireAuth, requireRole('dashboard'), (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 

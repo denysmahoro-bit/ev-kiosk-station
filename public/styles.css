@@ -45,6 +45,415 @@ h1 { margin: 0 0 8px; font-size: clamp(2rem, 3vw, 2.6rem); }
   white-space: nowrap;
 }
 
+.site-header {
+  padding: 18px 5vw;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+}
+
+.site-brand strong,
+.site-brand small {
+  display: block;
+}
+
+.site-brand strong {
+  font-size: 1.25rem;
+}
+
+.site-brand small {
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.site-nav a:not(.topbar-link) {
+  color: white;
+  opacity: 0.9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.marketing-hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 76px 24px 64px;
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.marketing-hero-copy h1 {
+  max-width: 680px;
+  margin: 18px 0 16px;
+  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  line-height: 1.02;
+}
+
+.marketing-hero-copy > p {
+  max-width: 600px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.2rem;
+  line-height: 1.7;
+}
+
+.hero-highlight {
+  padding: 30px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #115e59, #14532d);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.hero-icon,
+.service-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  font-weight: 800;
+}
+
+.hero-highlight h2 {
+  margin: 22px 0 10px;
+  font-size: 1.8rem;
+}
+
+.hero-highlight p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.6;
+}
+
+.hero-facts {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-facts span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.hero-facts strong {
+  color: white;
+}
+
+.marketing-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 24px;
+}
+
+.section-heading {
+  max-width: 620px;
+}
+
+.section-heading h2,
+.marketing-cta h2 {
+  margin: 10px 0 12px;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.section-heading p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.section-label {
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 28px;
+}
+
+.about-content p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.8;
+}
+
+.services-section {
+  max-width: none;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.centered-heading {
+  margin: 0 auto 30px;
+  text-align: center;
+}
+
+.centered-heading p {
+  margin-bottom: 0;
+}
+
+.service-grid {
+  max-width: 1152px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.service-card {
+  padding: 26px;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.service-card .service-icon {
+  background: var(--soft);
+  color: var(--primary);
+}
+
+.service-card h3 {
+  margin: 20px 0 8px;
+  font-size: 1.2rem;
+}
+
+.service-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.step-card {
+  padding: 24px;
+  border-radius: 18px;
+  background: white;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-weight: 800;
+}
+
+.step-card h3 {
+  margin: 18px 0 8px;
+}
+
+.step-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.station-section {
+  max-width: none;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.station-section > .section-heading,
+.station-card {
+  max-width: 1152px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.station-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #115e59, #14532d);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.station-status {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(134, 239, 172, 0.2);
+  color: #bbf7d0;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.station-card h3 {
+  margin: 18px 0 8px;
+  font-size: 1.5rem;
+}
+
+.station-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.station-details {
+  min-width: min(100%, 360px);
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+
+.station-details span {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.station-details strong {
+  color: white;
+}
+
+.faq-section {
+  max-width: 900px;
+}
+
+.faq-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.faq-list details {
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.faq-list summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.faq-list details p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.marketing-cta {
+  max-width: 1152px;
+  margin: 72px auto;
+  padding: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #dcfce7, #f0fdfa);
+}
+
+.marketing-cta h2 {
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+
+.marketing-cta p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.contact-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.contact-details {
+  display: grid;
+  gap: 14px;
+  align-content: center;
+}
+
+.contact-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(15, 118, 110, 0.12);
+}
+
+.contact-details span {
+  color: var(--muted);
+}
+
+.contact-details a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.contact-details a:hover {
+  text-decoration: underline;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 26px 5vw;
+  background: #0f172a;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.site-footer a {
+  color: white;
+}
+
 .portal-selection {
   max-width: 920px;
   margin: 50px auto;
@@ -454,6 +863,17 @@ th, td {
     font-size: 0.85rem;
   }
 
+  .site-header {
+    align-items: flex-start;
+  }
+
+  .site-nav {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+
   h1 {
     font-size: 1.5rem;
   }
@@ -476,6 +896,19 @@ th, td {
     font-size: 1.9rem;
   }
 
+  .marketing-hero {
+    grid-template-columns: 1fr;
+    padding: 44px 14px;
+  }
+
+  .marketing-hero-copy h1 {
+    font-size: 3rem;
+  }
+
+  .marketing-hero-copy > p {
+    font-size: 1.05rem;
+  }
+
   .portal-selection {
     margin: 28px auto;
     padding: 0 14px;
@@ -483,6 +916,50 @@ th, td {
 
   .portal-options {
     grid-template-columns: 1fr;
+  }
+
+  .marketing-section {
+    padding: 48px 14px;
+  }
+
+  .about-content,
+  .service-grid,
+  .contact-section {
+    grid-template-columns: 1fr;
+  }
+
+  .steps-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .station-card {
+    flex-direction: column;
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+
+  .station-details {
+    min-width: 0;
+  }
+
+  .marketing-cta {
+    margin: 44px 14px;
+    padding: 26px 20px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .marketing-cta .hero-actions {
+    width: 100%;
+  }
+
+  .marketing-cta .hero-actions a {
+    flex: 1;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    padding: 24px 16px;
   }
 
   .hero-actions {

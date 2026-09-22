@@ -3,49 +3,204 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Choose a portal | Sela Volts</title>
+    <title>Sela Volts | Smart EV charging for everyone</title>
     <meta name="theme-color" content="#0f766e" />
-    <meta name="description" content="Choose the Sela Volts customer or seller portal" />
+    <meta
+      name="description"
+      content="Sela Volts provides reliable electric vehicle charging across Rwanda."
+    />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <h1>Sela Volts</h1>
-        <p>Smart EV charging registration and payment</p>
-      </div>
+    <header class="topbar site-header">
+      <a class="site-brand" href="/">
+        <span class="brand-mark">SV</span>
+        <span>
+          <strong>Sela Volts</strong>
+          <small>Smart EV charging for everyone</small>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="#about">About us</a>
+        <a href="#services">Our service</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#contact">Contact</a>
+        <a class="topbar-link" href="/dashboard">Staff access</a>
+      </nav>
     </header>
 
-    <main class="portal-selection">
-      <section class="hero-copy">
-        <span class="brand-pill">Clean energy for Rwanda</span>
-        <h2>Choose how you want to use Sela Volts.</h2>
-        <p>Select a portal to continue. Customers and sellers have separate workspaces for a simpler experience.</p>
+    <main>
+      <section class="marketing-hero">
+        <div class="marketing-hero-copy">
+          <span class="brand-pill">Electric mobility in Rwanda</span>
+          <h1>Charge your journey with confidence.</h1>
+          <p>
+            Sela Volts makes electric vehicle charging simple, accessible, and dependable for
+            drivers across Rwanda.
+          </p>
+        </div>
+        <div class="hero-highlight">
+          <span class="hero-icon" aria-hidden="true">⚡</span>
+          <h2>Powering a cleaner future</h2>
+          <p>Convenient charging support for today’s drivers and tomorrow’s transport.</p>
+          <div class="hero-facts">
+            <span><strong>24/7</strong> station access</span>
+            <span><strong>Rwanda</strong> service area</span>
+          </div>
+        </div>
       </section>
 
-      <section class="portal-options" aria-label="Choose a portal">
-        <a class="portal-option primary-btn" href="/customer">
-          <span class="portal-number">1</span>
-          <span>
-            <strong>Customer</strong>
-            <small>Register your vehicle and make a payment.</small>
-          </span>
-        </a>
-        <a class="portal-option secondary-btn" href="/seller">
-          <span class="portal-number">2</span>
-          <span>
-            <strong>Seller</strong>
-            <small>Start charging sessions and request payment.</small>
-          </span>
-        </a>
+      <section class="marketing-section" id="about">
+        <div class="section-heading">
+          <span class="section-label">About us</span>
+          <h2>Moving Rwanda forward, one charge at a time.</h2>
+        </div>
+        <div class="about-content">
+          <p>
+            Sela Volts is building a more convenient electric mobility experience in Rwanda. We
+            connect EV drivers with dependable charging so they can spend less time planning around
+            their battery and more time on the road.
+          </p>
+          <p>
+            Our service is designed to be clear and easy to use, whether you are charging your own
+            vehicle or helping customers at a charging station.
+          </p>
+        </div>
       </section>
 
-      <p class="separate-dashboard-link">
-        Staff access:
-        <a href="/dashboard">Open the separate dashboard</a>
-      </p>
+      <section class="marketing-section services-section" id="services">
+        <div class="section-heading centered-heading">
+          <span class="section-label">Our service</span>
+          <h2>EV charging made simple.</h2>
+          <p>Everything you need for a smooth charging stop.</p>
+        </div>
+        <div class="service-grid">
+          <article class="service-card">
+            <span class="service-icon" aria-hidden="true">⚡</span>
+            <h3>Reliable charging</h3>
+            <p>Access practical EV charging support when you need to keep moving.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-icon" aria-hidden="true">✓</span>
+            <h3>Simple experience</h3>
+            <p>Clear steps help drivers and station teams complete each charging session with ease.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-icon" aria-hidden="true">RWF</span>
+            <h3>Convenient payment</h3>
+            <p>Complete your charging payment through a straightforward mobile-money flow.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="marketing-section" id="how-it-works">
+        <div class="section-heading centered-heading">
+          <span class="section-label">How it works</span>
+          <h2>Charging in four simple steps.</h2>
+          <p>We keep every charging stop clear from start to finish.</p>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card">
+            <span class="step-number">1</span>
+            <h3>Register your vehicle</h3>
+            <p>Enter your details once so your vehicle is ready for charging.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-number">2</span>
+            <h3>Start your session</h3>
+            <p>Work with the station seller to begin your charging session.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-number">3</span>
+            <h3>Charge your EV</h3>
+            <p>Connect your vehicle and let the charging station do the work.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-number">4</span>
+            <h3>Pay securely</h3>
+            <p>Complete your payment through a simple mobile-money process.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="marketing-section station-section">
+        <div class="section-heading">
+          <span class="section-label">Charging station</span>
+          <h2>Find your next charge in Kigali.</h2>
+          <p>Our service is built to make EV charging more convenient for drivers in Rwanda.</p>
+        </div>
+        <div class="station-card">
+          <div>
+            <span class="station-status">Service available</span>
+            <h3>Sela Volts charging support</h3>
+            <p>Kigali, Rwanda</p>
+          </div>
+          <div class="station-details">
+            <span><strong>Hours</strong>24/7 access</span>
+            <span><strong>Vehicle types</strong>Electric vehicles</span>
+            <span><strong>Availability</strong>Contact us before visiting</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="marketing-cta">
+        <div>
+          <span class="section-label">Ready to get started?</span>
+          <h2>Choose your Sela Volts portal.</h2>
+          <p>Customers and sellers have separate spaces built for what they need.</p>
+        </div>
+        <div class="hero-actions">
+          <a class="primary-btn" href="/customer">Customer portal</a>
+          <a class="secondary-btn" href="/seller">Seller portal</a>
+        </div>
+      </section>
+
+      <section class="marketing-section faq-section">
+        <div class="section-heading centered-heading">
+          <span class="section-label">FAQ</span>
+          <h2>Questions, answered.</h2>
+          <p>Here are a few things drivers commonly want to know.</p>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>How do I start charging?</summary>
+            <p>Open the Customer portal to register your vehicle, then ask a station seller to start your charging session.</p>
+          </details>
+          <details>
+            <summary>How can I pay for charging?</summary>
+            <p>Payments are requested and confirmed through the mobile-money flow supported by the charging station.</p>
+          </details>
+          <details>
+            <summary>Which vehicles can use the service?</summary>
+            <p>Sela Volts is designed for electric vehicles. Contact us to confirm compatibility for your vehicle before visiting.</p>
+          </details>
+          <details>
+            <summary>How can I check station availability?</summary>
+            <p>Contact our team on +250 789 662 677 or by email before travelling to a station.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="marketing-section contact-section" id="contact">
+        <div class="section-heading">
+          <span class="section-label">Contact us</span>
+          <h2>Let’s make electric mobility easier.</h2>
+          <p>Our team is here to help with charging questions and service information.</p>
+        </div>
+        <div class="contact-details">
+          <div><strong>Phone</strong><span><a href="tel:+250789662677">+250 789 662 677</a></span></div>
+          <div><strong>Email</strong><span><a href="mailto:1selavolts@gmail.com">1selavolts@gmail.com</a></span></div>
+          <div><strong>WhatsApp</strong><span><a href="https://wa.me/250789662677">Chat with us</a></span></div>
+          <div><strong>Location</strong><span>Kigali, Rwanda</span></div>
+        </div>
+      </section>
     </main>
+
+    <footer class="site-footer">
+      <span>© 2026 Sela Volts. Smart EV charging for everyone.</span>
+      <a href="/dashboard">Staff dashboard</a>
+    </footer>
 
     <script>
       if ('serviceWorker' in navigator) {

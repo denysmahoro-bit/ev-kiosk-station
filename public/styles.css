@@ -31,6 +31,97 @@ body {
 h1 { margin: 0 0 8px; font-size: clamp(2rem, 3vw, 2.6rem); }
 .topbar p { margin: 0; opacity: 0.9; font-size: 1.02rem; }
 
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.topbar-link {
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.portal-selection {
+  max-width: 920px;
+  margin: 50px auto;
+  padding: 0 24px;
+}
+
+.portal-selection .hero-copy {
+  text-align: center;
+}
+
+.portal-selection .hero-copy p {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.portal-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.portal-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 128px;
+  padding: 24px;
+  border-radius: 18px;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.portal-option strong,
+.portal-option small {
+  display: block;
+}
+
+.portal-option strong {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+}
+
+.portal-option small {
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.portal-option.secondary-btn {
+  color: var(--primary);
+}
+
+.portal-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.separate-dashboard-link {
+  margin: 26px 0 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.separate-dashboard-link a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
 .hero {
   max-width: 1200px;
   margin: 24px auto 0;
@@ -359,6 +450,10 @@ th, td {
     padding: 18px 16px;
   }
 
+  .topbar-link {
+    font-size: 0.85rem;
+  }
+
   h1 {
     font-size: 1.5rem;
   }
@@ -379,6 +474,15 @@ th, td {
 
   .hero-copy h2 {
     font-size: 1.9rem;
+  }
+
+  .portal-selection {
+    margin: 28px auto;
+    padding: 0 14px;
+  }
+
+  .portal-options {
+    grid-template-columns: 1fr;
   }
 
   .hero-actions {

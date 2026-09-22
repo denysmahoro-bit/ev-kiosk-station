@@ -26,6 +26,20 @@ async function assertRoute(port, route, expectedText) {
   }
 }
 
+async function assertLandingPage(port) {
+  const response = await fetch(`http://localhost:${port}/`);
+  const html = await response.text();
+  if (!response.ok) {
+    throw new Error(`/ responded with ${response.status}.`);
+  }
+  if (!html.includes('href="/customer"') || !html.includes('href="/seller"')) {
+    throw new Error('/ does not provide customer and seller portal options.');
+  }
+  if (html.includes('id="dashboard-panel"')) {
+    throw new Error('/ still embeds the dashboard.');
+  }
+}
+
 (async () => {
   const server = spawn(process.execPath, [path.join(__dirname, '..', 'server.js')], {
     cwd: path.join(__dirname, '..'),
@@ -39,6 +53,7 @@ async function assertRoute(port, route, expectedText) {
 
   try {
     await waitForServer(3100);
+    await assertLandingPage(3100);
     await assertRoute(3100, '/customer', 'Customer portal');
     await assertRoute(3100, '/seller', 'Seller portal');
     await assertRoute(3100, '/dashboard', 'Dashboard');

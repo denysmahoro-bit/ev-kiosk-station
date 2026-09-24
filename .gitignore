@@ -1,8 +1,11 @@
+.next
 node_modules
 .env
 *.env
 *.env.*
 data/storage.json
+prisma/dev.db
+prisma/dev.db-journal
 
 ### AL ###
 #Template for AL projects for Dynamics 365 Business Central

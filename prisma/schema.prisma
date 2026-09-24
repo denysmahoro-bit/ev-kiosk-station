@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  SUPER_ADMIN
+  ADMIN
+  STATION_MANAGER
+  CUSTOMER
+  SUPPORT
+}
+
+enum StationStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum ChargerStatus {
+  AVAILABLE
+  CHARGING
+  PREPARING
+  SUSPENDED
+  FINISHING
+  FAULTED
+  UNAVAILABLE
+  OFFLINE
+}
+
+enum ConnectorType {
+  CCS2
+  GB_T
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  CHARGING
+  COMPLETED
+  CANCELLED
+  FAULTED
+}
+
+enum NotificationChannel {
+  IN_APP
+  SMS
+  EMAIL
+  PUSH
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  fullName      String
+  phoneNumber   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  roles         Role[]
+  customer      CustomerProfile?
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  tickets       SupportTicket[]
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  name        RoleName  @unique
+  users       User[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CustomerProfile {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id])
+  preferredConnector ConnectorType?
+  vehicleMake      String?
+  vehicleModel     String?
+  licensePlate     String?
+  accountStatus    String    @default("ACTIVE")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  vehicles         Vehicle[]
+  sessions         ChargingSession[]
+  payments         Payment[]
+}
+
+model Vehicle {
+  id            String          @id @default(cuid())
+  customerId    String
+  customer      CustomerProfile @relation(fields: [customerId], references: [id])
+  make          String
+  model         String
+  licensePlate  String         @unique
+  connectorType ConnectorType
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  sessions      ChargingSession[]
+}
+
+model Station {
+  id          String       @id @default(cuid())
+  stationId   String       @unique
+  name        String
+  address     String
+  district    String
+  sector      String
+  latitude    Float
+  longitude   Float
+  openingHours String
+  contact     String?
+  status      StationStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  chargers    Charger[]
+  pricing     PricingRule[]
+}
+
+model Charger {
+  id              String         @id @default(cuid())
+  chargerId       String         @unique
+  stationId       String
+  station         Station         @relation(fields: [stationId], references: [id])
+  manufacturer    String
+  model           String
+  serialNumber    String
+  powerKw         Int
+  connectorType   ConnectorType
+  numberOfConnectors Int
+  ocppIdentity   String?
+  networkStatus   ChargerStatus  @default(AVAILABLE)
+  operationalStatus ChargerStatus @default(AVAILABLE)
+  installationDate DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  sessions        ChargingSession[]
+}
+
+model ChargingSession {
+  id                      String        @id @default(cuid())
+  sessionId               String        @unique
+  customerId              String
+  customer                CustomerProfile @relation(fields: [customerId], references: [id])
+  vehicleId               String?
+  vehicle                 Vehicle?      @relation(fields: [vehicleId], references: [id])
+  chargerId               String
+  charger                 Charger       @relation(fields: [chargerId], references: [id])
+  startTime               DateTime      @default(now())
+  endTime                 DateTime?
+  energyDeliveredKwh      Float?
+  totalAmount             Float?
+  currency                String        @default("RWF")
+  status                  SessionStatus @default(SCHEDULED)
+  paymentStatus           PaymentStatus @default(PENDING)
+  notes                   String?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  payments                Payment[]
+  meterReadings           MeterReading[]
+}
+
+model MeterReading {
+  id                 String           @id @default(cuid())
+  sessionId          String
+  session            ChargingSession  @relation(fields: [sessionId], references: [id])
+  timestamp          DateTime         @default(now())
+  energyKwh          Float
+  powerKw            Float?
+  voltageV           Float?
+  currentA           Float?
+  createdAt          DateTime         @default(now())
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  transactionId  String        @unique
+  customerId     String
+  customer       CustomerProfile @relation(fields: [customerId], references: [id])
+  sessionId      String
+  session        ChargingSession @relation(fields: [sessionId], references: [id])
+  energyKwh      Float
+  amount         Float
+  currency       String        @default("RWF")
+  paymentMethod String?
+  status         PaymentStatus @default(PENDING)
+  timestamp      DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model PricingRule {
+  id             String    @id @default(cuid())
+  stationId      String?
+  station        Station?   @relation(fields: [stationId], references: [id])
+  chargerId      String?
+  connectorType  ConnectorType?
+  pricePerKwh    Float
+  currency       String    @default("RWF")
+  validFrom     DateTime  @default(now())
+  validTo        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String?
+  user        User?             @relation(fields: [userId], references: [id])
+  title       String
+  message     String
+  channel     NotificationChannel @default(IN_APP)
+  readAt      DateTime?
+  createdAt   DateTime          @default(now())
+}
+
+model SupportTicket {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  subject     String
+  status      String    @default("OPEN")
+  message     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  action      String
+  entity      String
+  entityId    String?
+  timestamp   DateTime  @default(now())
+  ipAddress   String?
+}

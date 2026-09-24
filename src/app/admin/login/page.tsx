@@ -4,9 +4,9 @@ import { loginAction } from './actions';
 export default function AdminLoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-12">
-      <div className="w-full max-w-md rounded-[30px] border border-slate-200 bg-white p-8 shadow-soft">
+      <div className="w-full max-w-md rounded-[30px] border border-slate-200 bg-white p-8 shadow-[0_28px_80px_rgba(7,26,43,0.12)]">
         <div className="mb-6 flex items-center justify-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-navy text-brand-green">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-navy text-brand-green shadow-lg shadow-brand-navy/20">
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div>
@@ -22,22 +22,22 @@ export default function AdminLoginPage() {
 
         <form action={loginAction} className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
-            <input name="email" type="email" defaultValue="admin@selavolt.rw" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-cyan" />
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+            <input name="email" type="email" defaultValue="admin@selavolt.rw" className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-base text-slate-900 outline-none ring-0 transition focus:border-brand-cyan focus:bg-white" />
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
-            <input name="password" type="password" defaultValue="password123" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-cyan" />
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
+            <input name="password" type="password" defaultValue="password123" className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-base text-slate-900 outline-none ring-0 transition focus:border-brand-cyan focus:bg-white" />
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <a href="/admin/forgot-password" className="font-medium text-brand-navy">Forgot password?</a>
+            <a href="/admin/forgot-password" className="font-medium text-brand-navy underline-offset-4 hover:underline">Forgot password?</a>
             <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700">DEMO</span>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-brand-green px-5 py-3 text-sm font-semibold text-brand-navy shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:bg-emerald-400"
+            className="w-full rounded-2xl bg-brand-green px-5 py-3 text-base font-semibold text-brand-navy shadow-lg shadow-emerald-500/25 transition-all hover:-translate-y-0.5 hover:bg-emerald-400"
           >
             Sign in
           </button>
